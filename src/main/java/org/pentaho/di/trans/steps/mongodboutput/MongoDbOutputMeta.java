@@ -19,7 +19,6 @@ package org.pentaho.di.trans.steps.mongodboutput;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.pentaho.di.core.CheckResult;
 import org.pentaho.di.core.CheckResultInterface;
 import org.pentaho.di.core.Const;
@@ -508,6 +507,14 @@ public class MongoDbOutputMeta extends MongoDbMeta implements StepMetaInterface 
           XMLHandler.addTagValue( "mongo_password", //$NON-NLS-1$
               Encr.encryptPasswordIfNotUsingVariables( getAuthenticationPassword() ) ) );
     }
+    if ( !Const.isEmpty( getAuthenticationDB() ) ) {
+      retval.append( "\n    " ).append( //$NON-NLS-1$
+              XMLHandler.addTagValue( "mongo_auth_db", getAuthenticationDB() ) ); //$NON-NLS-1$
+    }
+    if ( !Const.isEmpty( getUseSSL() ) ) {
+      retval.append( "\n    " ).append( //$NON-NLS-1$
+              XMLHandler.addTagValue( "mongo_use_ssl", getUseSSL() ) ); //$NON-NLS-1$
+    }
 
     retval.append( "    " ).append( //$NON-NLS-1$
         XMLHandler.addTagValue( "auth_kerberos", getUseKerberosAuthentication() ) ); //$NON-NLS-1$
@@ -618,6 +625,8 @@ public class MongoDbOutputMeta extends MongoDbMeta implements StepMetaInterface 
     if ( !Const.isEmpty( getAuthenticationPassword() ) ) {
       setAuthenticationPassword( Encr.decryptPasswordOptionallyEncrypted( getAuthenticationPassword() ) );
     }
+    setAuthenticationDB( XMLHandler.getTagValue( stepnode, "mongo_auth_db" ) ); //$NON-NLS-1$
+    setUseSSL( XMLHandler.getTagValue( stepnode, "mongo_use_ssl" ) ); //$NON-NLS-1$
 
     setUseKerberosAuthentication( "Y".equalsIgnoreCase( XMLHandler.getTagValue( stepnode, "auth_kerberos" ) ) ); //$NON-NLS-1$
     setDbName( XMLHandler.getTagValue( stepnode, "mongo_db" ) ); //$NON-NLS-1$
@@ -654,7 +663,7 @@ public class MongoDbOutputMeta extends MongoDbMeta implements StepMetaInterface 
       m_update = true;
     }
 
-    setUseAllReplicaSetMembers( "Y".equalsIgnoreCase( XMLHandler.getTagValue( stepnode, "use_all_replica_members" ) ) ); //$NON-NLS-1$ //$NON-NLS-2$
+    setUseAllReplicaSetMembers( XMLHandler.getTagValue( stepnode, "use_all_replica_members" ) ); //$NON-NLS-1$ //$NON-NLS-2$
 
     String writeRetries = XMLHandler.getTagValue( stepnode, "write_retries" ); //$NON-NLS-1$
     if ( !Const.isEmpty( writeRetries ) ) {
@@ -726,12 +735,14 @@ public class MongoDbOutputMeta extends MongoDbMeta implements StepMetaInterface 
     throws KettleException {
     setHostnames( rep.getStepAttributeString( id_step, 0, "mongo_host" ) ); //$NON-NLS-1$
     setPort( rep.getStepAttributeString( id_step, 0, "mongo_port" ) ); //$NON-NLS-1$
-    setUseAllReplicaSetMembers( rep.getStepAttributeBoolean( id_step, 0, "use_all_replica_members" ) ); //$NON-NLS-1$
+    setUseAllReplicaSetMembers( rep.getStepAttributeString( id_step, 0, "use_all_replica_members" ) ); //$NON-NLS-1$
     setAuthenticationUser( rep.getStepAttributeString( id_step, 0, "mongo_user" ) ); //$NON-NLS-1$
     setAuthenticationPassword( rep.getStepAttributeString( id_step, 0, "mongo_password" ) ); //$NON-NLS-1$
     if ( !Const.isEmpty( getAuthenticationPassword() ) ) {
       setAuthenticationPassword( Encr.decryptPasswordOptionallyEncrypted( getAuthenticationPassword() ) );
     }
+    setAuthenticationDB( rep.getStepAttributeString( id_step, 0, "mongo_auth_db" ) ); //$NON-NLS-1$
+    setUseSSL( rep.getStepAttributeString( id_step, 0, "mongo_use_ssl" ) ); //$NON-NLS-1$
     setUseKerberosAuthentication( rep.getStepAttributeBoolean( id_step, "auth_kerberos" ) ); //$NON-NLS-1$
     setDbName( rep.getStepAttributeString( id_step, 0, "mongo_db" ) ); //$NON-NLS-1$
     setCollection( rep.getStepAttributeString( id_step, 0, "mongo_collection" ) ); //$NON-NLS-1$
@@ -824,6 +835,14 @@ public class MongoDbOutputMeta extends MongoDbMeta implements StepMetaInterface 
     if ( !Const.isEmpty( getAuthenticationPassword() ) ) {
       rep.saveStepAttribute( id_transformation, id_step, 0, "mongo_password", //$NON-NLS-1$
           Encr.encryptPasswordIfNotUsingVariables( getAuthenticationPassword() ) );
+    }
+    if ( !Const.isEmpty( getAuthenticationDB() ) ) {
+      rep.saveStepAttribute( id_transformation, id_step, 0, "mongo_auth_db", //$NON-NLS-1$
+              getAuthenticationDB() );
+    }
+    if ( !Const.isEmpty( getUseSSL() ) ) {
+      rep.saveStepAttribute( id_transformation, id_step, 0, "mongo_use_ssl", //$NON-NLS-1$
+              getUseSSL() );
     }
 
     rep.saveStepAttribute( id_transformation, id_step, "auth_kerberos", //$NON-NLS-1$

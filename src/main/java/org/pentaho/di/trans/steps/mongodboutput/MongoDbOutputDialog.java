@@ -102,9 +102,11 @@ public class MongoDbOutputDialog extends BaseStepDialog implements StepDialogInt
 
   private TextVar m_hostnameField;
   private TextVar m_portField;
-  private Button m_useAllReplicaSetMembersBut;
+  private TextVar m_useAllReplicaSetMembersField;
   private TextVar m_usernameField;
   private TextVar m_passField;
+  private TextVar m_authDBField;
+  private TextVar m_useSSLField;
 
   private Button m_kerberosBut;
 
@@ -274,13 +276,13 @@ public class MongoDbOutputDialog extends BaseStepDialog implements StepDialogInt
     fd.top = new FormAttachment( m_portField, margin );
     useAllReplicaLab.setLayoutData( fd );
 
-    m_useAllReplicaSetMembersBut = new Button( wConfigComp, SWT.CHECK );
-    props.setLook( m_useAllReplicaSetMembersBut );
+    m_useAllReplicaSetMembersField = new TextVar( transMeta, wConfigComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    props.setLook(m_useAllReplicaSetMembersField);
     fd = new FormData();
     fd.left = new FormAttachment( middle, 0 );
     fd.right = new FormAttachment( 100, 0 );
     fd.top = new FormAttachment( m_portField, margin );
-    m_useAllReplicaSetMembersBut.setLayoutData( fd );
+    m_useAllReplicaSetMembersField.setLayoutData( fd );
 
     // username field
     Label userLab = new Label( wConfigComp, SWT.RIGHT );
@@ -288,7 +290,7 @@ public class MongoDbOutputDialog extends BaseStepDialog implements StepDialogInt
     props.setLook( userLab );
     fd = new FormData();
     fd.left = new FormAttachment( 0, 0 );
-    fd.top = new FormAttachment( m_useAllReplicaSetMembersBut, margin );
+    fd.top = new FormAttachment(m_useAllReplicaSetMembersField, margin );
     fd.right = new FormAttachment( middle, -margin );
     userLab.setLayoutData( fd );
 
@@ -297,7 +299,7 @@ public class MongoDbOutputDialog extends BaseStepDialog implements StepDialogInt
     m_usernameField.addModifyListener( lsMod );
     fd = new FormData();
     fd.right = new FormAttachment( 100, 0 );
-    fd.top = new FormAttachment( m_useAllReplicaSetMembersBut, margin );
+    fd.top = new FormAttachment(m_useAllReplicaSetMembersField, margin );
     fd.left = new FormAttachment( middle, 0 );
     m_usernameField.setLayoutData( fd );
 
@@ -321,13 +323,53 @@ public class MongoDbOutputDialog extends BaseStepDialog implements StepDialogInt
     fd.left = new FormAttachment( middle, 0 );
     m_passField.setLayoutData( fd );
 
+    // auth DB field
+    Label authDBLab = new Label( wConfigComp, SWT.RIGHT );
+    authDBLab.setText( getString( "MongoDbOutputDialog.AuthenticationDB.Label" ) ); //$NON-NLS-1$
+    props.setLook( authDBLab );
+    fd = new FormData();
+    fd.left = new FormAttachment( 0, 0 );
+    fd.top = new FormAttachment( m_passField, margin );
+    fd.right = new FormAttachment( middle, -margin );
+    authDBLab.setLayoutData( fd );
+
+    m_authDBField = new TextVar( transMeta, wConfigComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    props.setLook( m_authDBField );
+    m_authDBField.addModifyListener( lsMod );
+
+    fd = new FormData();
+    fd.right = new FormAttachment( 100, 0 );
+    fd.top = new FormAttachment( m_passField, margin );
+    fd.left = new FormAttachment( middle, 0 );
+    m_authDBField.setLayoutData( fd );
+
+    // use SSL field
+    Label useSSLLab = new Label( wConfigComp, SWT.RIGHT );
+    useSSLLab.setText( getString( "MongoDbOutputDialog.UseSSL.Label" ) ); //$NON-NLS-1$
+    props.setLook( useSSLLab );
+    fd = new FormData();
+    fd.left = new FormAttachment( 0, 0 );
+    fd.top = new FormAttachment( m_authDBField, margin );
+    fd.right = new FormAttachment( middle, -margin );
+    useSSLLab.setLayoutData( fd );
+
+    m_useSSLField = new TextVar( transMeta, wConfigComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    props.setLook( m_useSSLField );
+    m_useSSLField.addModifyListener( lsMod );
+
+    fd = new FormData();
+    fd.right = new FormAttachment( 100, 0 );
+    fd.top = new FormAttachment( m_authDBField, margin );
+    fd.left = new FormAttachment( middle, 0 );
+    m_useSSLField.setLayoutData( fd );
+
     // use kerberos authentication
     Label kerbLab = new Label( wConfigComp, SWT.RIGHT );
     kerbLab.setText( getString( "MongoDbOutputDialog.Kerberos.Label" ) ); //$NON-NLS-1$
     props.setLook( kerbLab );
     fd = new FormData();
     fd.left = new FormAttachment( 0, 0 );
-    fd.top = new FormAttachment( m_passField, margin );
+    fd.top = new FormAttachment( m_useSSLField, margin );
     fd.right = new FormAttachment( middle, -margin );
     kerbLab.setLayoutData( fd );
 
@@ -336,7 +378,7 @@ public class MongoDbOutputDialog extends BaseStepDialog implements StepDialogInt
     fd = new FormData();
     fd.left = new FormAttachment( middle, 0 );
     fd.right = new FormAttachment( 100, 0 );
-    fd.top = new FormAttachment( m_passField, margin );
+    fd.top = new FormAttachment( m_useSSLField, margin );
     m_kerberosBut.setLayoutData( fd );
 
     m_kerberosBut.addSelectionListener( new SelectionAdapter() {
@@ -1087,9 +1129,11 @@ public class MongoDbOutputDialog extends BaseStepDialog implements StepDialogInt
   private void getInfo( MongoDbOutputMeta meta ) {
     meta.setHostnames( m_hostnameField.getText() );
     meta.setPort( m_portField.getText() );
-    meta.setUseAllReplicaSetMembers( m_useAllReplicaSetMembersBut.getSelection() );
+    meta.setUseAllReplicaSetMembers( m_useAllReplicaSetMembersField.getText() );
     meta.setAuthenticationUser( m_usernameField.getText() );
     meta.setAuthenticationPassword( m_passField.getText() );
+    meta.setAuthenticationPassword( m_authDBField.getText() );
+    meta.setAuthenticationPassword( m_useSSLField.getText() );
     meta.setUseKerberosAuthentication( m_kerberosBut.getSelection() );
     meta.setDbName( m_dbNameField.getText() );
     meta.setCollection( m_collectionField.getText() );
@@ -1176,9 +1220,11 @@ public class MongoDbOutputDialog extends BaseStepDialog implements StepDialogInt
   private void getData() {
     m_hostnameField.setText( Const.NVL( m_currentMeta.getHostnames(), "" ) ); //$NON-NLS-1$
     m_portField.setText( Const.NVL( m_currentMeta.getPort(), "" ) ); //$NON-NLS-1$
-    m_useAllReplicaSetMembersBut.setSelection( m_currentMeta.getUseAllReplicaSetMembers() );
+    m_useAllReplicaSetMembersField.setText( Const.NVL( m_currentMeta.getUseAllReplicaSetMembers(), "false") );
     m_usernameField.setText( Const.NVL( m_currentMeta.getAuthenticationUser(), "" ) ); //$NON-NLS-1$
     m_passField.setText( Const.NVL( m_currentMeta.getAuthenticationPassword(), "" ) ); //$NON-NLS-1$
+    m_authDBField.setText( Const.NVL( m_currentMeta.getAuthenticationDB(), "admin" ) ); //$NON-NLS-1$
+    m_useSSLField.setText( Const.NVL( m_currentMeta.getUseSSL(), "false" ) ); //$NON-NLS-1$
     m_kerberosBut.setSelection( m_currentMeta.getUseKerberosAuthentication() );
     m_passField.setEnabled( !m_kerberosBut.getSelection() );
     m_dbNameField.setText( Const.NVL( m_currentMeta.getDbName(), "" ) ); //$NON-NLS-1$

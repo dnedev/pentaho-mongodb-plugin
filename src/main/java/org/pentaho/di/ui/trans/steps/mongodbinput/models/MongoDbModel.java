@@ -19,6 +19,12 @@ package org.pentaho.di.ui.trans.steps.mongodbinput.models;
 
 import com.mongodb.DBObject;
 import com.mongodb.util.JSON;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.Vector;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.logging.LogChannel;
@@ -36,13 +42,6 @@ import org.pentaho.mongo.wrapper.MongoWrapperUtil;
 import org.pentaho.ui.xul.XulEventSourceAdapter;
 import org.pentaho.ui.xul.stereotype.Bindable;
 import org.pentaho.ui.xul.util.AbstractModelList;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.Vector;
 
 public class MongoDbModel extends XulEventSourceAdapter {
 
@@ -62,11 +61,15 @@ public class MongoDbModel extends XulEventSourceAdapter {
 
   private String authenticationPassword;
 
+  private String authenticationDB = "admin";
+
   private String jsonQuery;
 
   private boolean m_aggPipeline = false;
 
   private boolean m_useAllReplicaSetMembers = false;
+
+  private boolean m_useSSL = false;
 
   private String m_connectTimeout = ""; // default - never time out
 
@@ -192,7 +195,7 @@ public class MongoDbModel extends XulEventSourceAdapter {
   }
 
   /**
-   * @param dbName the dbName to set
+   * @param fields the fields to set
    */
   public void setFieldsName( String fields ) {
     String prevVal = this.fieldsQuery;
@@ -274,6 +277,23 @@ public class MongoDbModel extends XulEventSourceAdapter {
   }
 
   /**
+   * @return the authenticationDB
+   */
+  public String getAuthenticationDB() {
+    return authenticationDB;
+  }
+
+  /**
+   * @param authenticationDB the authenticationDB to set
+   */
+  public void setAuthenticationDB( String authenticationDB ) {
+    String prevVal = this.authenticationDB;
+    this.authenticationDB = authenticationDB;
+
+    firePropertyChange( "authenticationDB", prevVal, authenticationDB );
+  }
+
+  /**
    * @return the jsonQuery
    */
   public String getJsonQuery() {
@@ -313,13 +333,37 @@ public class MongoDbModel extends XulEventSourceAdapter {
   }
 
   /**
-   * Set  whether to include all members in the replica set for querying
+   * Set whether to include all members in the replica set for querying
    */
-  public void setUseAllReplicaMembers( boolean u ) {
+  public void setUseAllReplicaMembers( String useAllReplicaSetMembers ) {
     Boolean prevVal = new Boolean( this.m_useAllReplicaSetMembers );
-    m_useAllReplicaSetMembers = u;
+    m_useAllReplicaSetMembers = Boolean.valueOf(useAllReplicaSetMembers);
 
-    firePropertyChange( "m_useAllReplicaSetMembers", prevVal, new Boolean( u ) );
+    firePropertyChange( "m_useAllReplicaSetMembers", prevVal, Boolean.valueOf(useAllReplicaSetMembers) );
+  }
+
+  /**
+   * Get whether to use SSL
+   */
+  public boolean getUseSSL() {
+    return m_useSSL;
+  }
+
+  /**
+   * Set whether to use SSL
+   */
+  public void setUseSSL( String useSSL ) {
+    Boolean prevVal = new Boolean( this.m_useSSL );
+    m_useSSL = Boolean.valueOf(useSSL);
+
+    firePropertyChange( "m_useAllReplicaSetMembers", prevVal, Boolean.valueOf(useSSL) );
+  }
+
+  /**
+   * Get whether to include all members in the replica set for querying
+   */
+  public boolean getUseAllReplicaMembers() {
+    return m_useAllReplicaSetMembers;
   }
 
   /**
@@ -341,13 +385,6 @@ public class MongoDbModel extends XulEventSourceAdapter {
    */
   public boolean getUseKerberosAuthentication() {
     return m_kerberos;
-  }
-
-  /**
-   * Get whether to include all members in the replica set for querying
-   */
-  public boolean getUseAllReplicaMembers() {
-    return m_useAllReplicaSetMembers;
   }
 
   /**
@@ -488,6 +525,7 @@ public class MongoDbModel extends XulEventSourceAdapter {
     meta.setJsonQuery( this.jsonQuery );
     meta.setAuthenticationPassword( this.authenticationPassword );
     meta.setAuthenticationUser( this.authenticationUser );
+    meta.setAuthenticationDB( this.authenticationDB );
     meta.setCollection( collection );
     meta.setConnectTimeout( this.m_connectTimeout );
     meta.setDbName( this.dbName );
@@ -499,7 +537,8 @@ public class MongoDbModel extends XulEventSourceAdapter {
     meta.setSocketTimeout( this.m_socketTimeout );
     meta.setMongoFields( MongoDocumentField.convertFromList( this.getFields() ) );
     meta.setUseKerberosAuthentication( m_kerberos );
-    meta.setUseAllReplicaSetMembers( this.m_useAllReplicaSetMembers );
+    meta.setUseAllReplicaSetMembers( String.valueOf(this.m_useAllReplicaSetMembers) );
+    meta.setUseSSL( String.valueOf(this.m_useSSL) );
     meta.setReadPrefTagSets( MongoTag.convertFromList( this.tags ) );
   }
 
@@ -507,6 +546,7 @@ public class MongoDbModel extends XulEventSourceAdapter {
     setJsonQuery( m.getJsonQuery() );
     setAuthenticationPassword( m.getAuthenticationPassword() );
     setAuthenticationUser( m.getAuthenticationUser() );
+    setAuthenticationDB( m.getAuthenticationDB() );
     setCollection( m.getCollection() );
     setCollections( new Vector<String>() );
     setDbName( m.getDbName() );
@@ -520,6 +560,7 @@ public class MongoDbModel extends XulEventSourceAdapter {
     setSocketTimeout( m.getSocketTimeout() );
     MongoDocumentField.convertList( m.getMongoFields(), getFields() );
     setUseAllReplicaMembers( m.getUseAllReplicaSetMembers() );
+    setUseSSL( m.getUseSSL() );
     setUseKerberosAuthentication( m.getUseKerberosAuthentication() );
     MongoTag.convertList( m.getReadPrefTagSets(), getTags() );
   }

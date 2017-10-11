@@ -50,7 +50,7 @@
   <properties>
     <mockito.version>1.9.5</mockito.version>
     <junit.version>4.11</junit.version>
-    <mongo-driver.version>2.11.1</mongo-driver.version>
+    <mongo-driver.version>2.14.2</mongo-driver.version>
   </properties>
   <dependencies>
     <dependency>
@@ -80,8 +80,7 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-mongo-utils</artifactId>
-      <version>${project.version}</version>
-      <scope>provided</scope>
+      <version>7.0.0.0-25</version>
     </dependency>
     <dependency>
       <groupId>org.mongodb</groupId>

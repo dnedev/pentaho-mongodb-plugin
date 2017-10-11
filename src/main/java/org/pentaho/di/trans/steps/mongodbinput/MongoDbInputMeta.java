@@ -19,7 +19,6 @@ package org.pentaho.di.trans.steps.mongodbinput;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.pentaho.di.core.CheckResultInterface;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.annotations.Step;
@@ -110,7 +109,9 @@ public class MongoDbInputMeta extends MongoDbMeta {
       jsonQuery = XMLHandler.getTagValue( stepnode, "json_query" ); //$NON-NLS-1$
       setAuthenticationUser( XMLHandler.getTagValue( stepnode, "auth_user" ) ); //$NON-NLS-1$
       setAuthenticationPassword( Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue( stepnode,
-          "auth_password" ) ) ); //$NON-NLS-1$
+          "auth_password" ) ) );
+      setAuthenticationDB( XMLHandler.getTagValue( stepnode, "auth_db" ) ); //$NON-NLS-1$
+      setUseSSL( XMLHandler.getTagValue( stepnode, "use_ssl" ) ); //$NON-NLS-1$
 
       m_kerberos = false;
       String useKerberos = XMLHandler.getTagValue( stepnode, "auth_kerberos" ); //$NON-NLS-1$
@@ -128,7 +129,7 @@ public class MongoDbInputMeta extends MongoDbMeta {
         m_outputJson = outputJson.equalsIgnoreCase( "Y" ); //$NON-NLS-1$
       }
 
-      setUseAllReplicaSetMembers( "Y".equalsIgnoreCase( XMLHandler.getTagValue( stepnode, "use_all_replica_members" ) ) ); //$NON-NLS-1$
+      setUseAllReplicaSetMembers( XMLHandler.getTagValue( stepnode, "use_all_replica_members" ) ); //$NON-NLS-1$
 
       String queryIsPipe = XMLHandler.getTagValue( stepnode, "query_is_pipeline" ); //$NON-NLS-1$
       if ( !Const.isEmpty( queryIsPipe ) ) {
@@ -248,6 +249,10 @@ public class MongoDbInputMeta extends MongoDbMeta {
         XMLHandler.addTagValue( "auth_password", //$NON-NLS-1$
             Encr.encryptPasswordIfNotUsingVariables( getAuthenticationPassword() ) ) );
     retval.append( "    " ).append( //$NON-NLS-1$
+            XMLHandler.addTagValue( "auth_db", getAuthenticationDB() ) ); //$NON-NLS-1$
+    retval.append( "    " ).append( //$NON-NLS-1$
+            XMLHandler.addTagValue( "use_ssl", getUseSSL() ) ); //$NON-NLS-1$
+    retval.append( "    " ).append( //$NON-NLS-1$
         XMLHandler.addTagValue( "auth_kerberos", m_kerberos ) ); //$NON-NLS-1$
     retval.append( "    " ).append( //$NON-NLS-1$
         XMLHandler.addTagValue( "connect_timeout", getConnectTimeout() ) ); //$NON-NLS-1$
@@ -298,7 +303,7 @@ public class MongoDbInputMeta extends MongoDbMeta {
     try {
       setHostnames( rep.getStepAttributeString( id_step, "hostname" ) ); //$NON-NLS-1$
       setPort( rep.getStepAttributeString( id_step, "port" ) ); //$NON-NLS-1$
-      setUseAllReplicaSetMembers( rep.getStepAttributeBoolean( id_step, 0, "use_all_replica_members" ) ); //$NON-NLS-1$
+      setUseAllReplicaSetMembers( rep.getStepAttributeString( id_step, "use_all_replica_members" ) ); //$NON-NLS-1$
       setDbName( rep.getStepAttributeString( id_step, "db_name" ) ); //$NON-NLS-1$
       fields = rep.getStepAttributeString( id_step, "fields_name" ); //$NON-NLS-1$
       setCollection( rep.getStepAttributeString( id_step, "collection" ) ); //$NON-NLS-1$
@@ -308,6 +313,8 @@ public class MongoDbInputMeta extends MongoDbMeta {
       setAuthenticationUser( rep.getStepAttributeString( id_step, "auth_user" ) ); //$NON-NLS-1$
       setAuthenticationPassword( Encr.decryptPasswordOptionallyEncrypted( rep.getStepAttributeString( id_step,
           "auth_password" ) ) ); //$NON-NLS-1$
+      setAuthenticationDB( rep.getStepAttributeString( id_step, "auth_db" ) ); //$NON-NLS-1$
+      setUseSSL( rep.getStepAttributeString( id_step, "use_ssl" ) ); //$NON-NLS-1$
       m_kerberos = rep.getStepAttributeBoolean( id_step, "auth_kerberos" ); //$NON-NLS-1$
       setConnectTimeout( rep.getStepAttributeString( id_step, "connect_timeout" ) ); //$NON-NLS-1$
       setSocketTimeout( rep.getStepAttributeString( id_step, "socket_timeout" ) ); //$NON-NLS-1$
@@ -368,6 +375,10 @@ public class MongoDbInputMeta extends MongoDbMeta {
           getAuthenticationUser() );
       rep.saveStepAttribute( id_transformation, id_step, "auth_password", //$NON-NLS-1$
           Encr.encryptPasswordIfNotUsingVariables( getAuthenticationPassword() ) );
+      rep.saveStepAttribute( id_transformation, id_step, "auth_db", //$NON-NLS-1$
+              getAuthenticationDB() );
+      rep.saveStepAttribute( id_transformation, id_step, "use_ssl", //$NON-NLS-1$
+              getUseSSL() );
       rep.saveStepAttribute( id_transformation, id_step, "auth_kerberos", //$NON-NLS-1$
           m_kerberos );
       rep.saveStepAttribute( id_transformation, id_step, "connect_timeout", getConnectTimeout() ); //$NON-NLS-1$
@@ -433,8 +444,8 @@ public class MongoDbInputMeta extends MongoDbMeta {
   }
 
   /**
-   * @param dbName
-   *          the dbName to set
+   * @param fields
+   *          the fields to set
    */
   public void setFieldsName( String fields ) {
     this.fields = fields;

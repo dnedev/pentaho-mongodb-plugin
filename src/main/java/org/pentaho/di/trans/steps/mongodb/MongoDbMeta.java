@@ -18,7 +18,6 @@
 package org.pentaho.di.trans.steps.mongodb;
 
 import java.util.List;
-
 import org.pentaho.di.trans.step.BaseStepMeta;
 import org.pentaho.di.trans.step.StepMetaInterface;
 import org.pentaho.di.trans.steps.mongodbinput.MongoDbInputMeta;
@@ -35,6 +34,8 @@ public abstract class MongoDbMeta extends BaseStepMeta implements StepMetaInterf
   private String authenticationUser;
   private String authenticationPassword;
 
+  private String authenticationDB;
+
   private boolean m_kerberos;
 
   private String m_connectTimeout = ""; // default - never time out //$NON-NLS-1$
@@ -50,7 +51,12 @@ public abstract class MongoDbMeta extends BaseStepMeta implements StepMetaInterf
    * whether to discover and use all replica set members (if not already
    * specified in the hosts field)
    */
-  private boolean m_useAllReplicaSetMembers;
+  private String m_useAllReplicaSetMembers;
+
+  /**
+   * whether to use SSL
+   */
+  private String m_useSSL;
 
   /**
    * optional tag sets to use with read preference settings
@@ -87,12 +93,20 @@ public abstract class MongoDbMeta extends BaseStepMeta implements StepMetaInterf
     return m_readPrefTagSets;
   }
 
-  public void setUseAllReplicaSetMembers( boolean u ) {
+  public void setUseAllReplicaSetMembers( String u ) {
     m_useAllReplicaSetMembers = u;
   }
 
-  public boolean getUseAllReplicaSetMembers() {
+  public String getUseAllReplicaSetMembers() {
     return m_useAllReplicaSetMembers;
+  }
+
+  public void setUseSSL( String u ) {
+    m_useSSL = u;
+  }
+
+  public String getUseSSL() {
+    return m_useSSL;
   }
 
   /**
@@ -183,6 +197,20 @@ public abstract class MongoDbMeta extends BaseStepMeta implements StepMetaInterf
   }
 
   /**
+   * @return the authenticationDB
+   */
+  public String getAuthenticationDB() {
+    return authenticationDB;
+  }
+
+  /**
+   * @param authenticationDB the authenticationDB to set
+   */
+  public void setAuthenticationDB( String authenticationDB ) {
+    this.authenticationDB = authenticationDB;
+  }
+
+  /**
    * Set whether to use kerberos authentication
    *
    * @param k true if kerberos is to be used
@@ -270,7 +298,7 @@ public abstract class MongoDbMeta extends BaseStepMeta implements StepMetaInterf
   /**
    * Get the write concern to use
    *
-   * @param co the write concern to use
+   * @return the write concern to use
    */
   public String getWriteConcern() {
     return m_writeConcern;
